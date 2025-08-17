@@ -120,12 +120,12 @@ pgsql
 ---
 
 ## ✨ Features Implemented So Far
-- ✅ **User registration & login** with validation  
-- ✅ **Browse & search products**  
-- ✅ **Add/remove/update cart items**  
-- ✅ **Styled HTML invoice generation** with background image  
-- ✅ **Transparent invoice popup style with cursive fonts**  
-- ✅ **Option to open invoice in browser** (System Default, Chrome, Edge, Brave, Firefox, Safari, Explorer)  
+-  **User registration & login** with validation  
+-  **Browse & search products**  
+-  **Add/remove/update cart items**  
+-  **Styled HTML invoice generation** with background image  
+-  **Transparent invoice popup style with cursive fonts**  
+-  **Option to open invoice in browser** (System Default, Chrome, Edge, Brave, Firefox, Safari, Explorer)  
 
 ---
 
