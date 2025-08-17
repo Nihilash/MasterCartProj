@@ -1,28 +1,10 @@
 package ui;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
-
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
-
 import model.User;
 import service.UserService;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class LoginUI extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -31,26 +13,25 @@ public class LoginUI extends JFrame {
     private JPasswordField passwordField;
     private JButton loginButton;
     private User loggedInUser;
+    private Image bgImage;
 
     public LoginUI(UserService userService) {
         setTitle("MasterCart - Login");
-        setExtendedState(Frame.MAXIMIZED_BOTH); // full screen
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // Full screen
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        // ✅ Load background image from resources (inside src/Mastercartimages/)
+        try {
+            bgImage = new ImageIcon(
+                getClass().getResource("/Mastercartimages/login1.jpg")
+            ).getImage();
+        } catch (Exception e) {
+            System.err.println("⚠️ Could not load background image. Check path: src/Mastercartimages/login1.jpg");
+            bgImage = null;
+        }
 
         // Background panel
         JPanel backgroundPanel = new JPanel() {
-            private Image bgImage;
-            {
-                try {
-                    // Load image from classpath
-                    ImageIcon icon = new ImageIcon(getClass().getResource("/Mastercartimages/login1.jpg"));
-                    bgImage = icon.getImage();
-                } catch (Exception e) {
-                    System.err.println("Background image not found!");
-                    bgImage = null;
-                }
-            }
-
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -70,14 +51,14 @@ public class LoginUI extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 0;
 
-        // --- Welcome label ---
+        // Welcome label
         JLabel welcomeLabel = new JLabel("Welcome to MasterCart Login", SwingConstants.CENTER);
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 36));
         welcomeLabel.setForeground(Color.BLACK);
 
-        // Panel wrapping the login box
+        // Login overlay panel
         JPanel loginOverlay = new JPanel(new GridBagLayout());
-        loginOverlay.setBackground(new Color(255, 255, 255, 180)); // semi-transparent
+        loginOverlay.setBackground(new Color(255, 255, 255, 120)); // semi-transparent
         loginOverlay.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         loginOverlay.setOpaque(true);
 
@@ -88,7 +69,7 @@ public class LoginUI extends JFrame {
 
         loginOverlay.add(welcomeLabel, innerGbc);
 
-        // Input fields panel
+        // Input panel
         JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setOpaque(false);
         GridBagConstraints inGbc = new GridBagConstraints();
@@ -115,6 +96,7 @@ public class LoginUI extends JFrame {
         loginButton.setForeground(Color.BLACK);
         loginButton.setFocusPainted(false);
 
+        // Add username/password fields and button
         inGbc.gridy = 0;
         inputPanel.add(usernameLabel, inGbc);
         inGbc.gridx = 1;
@@ -132,12 +114,14 @@ public class LoginUI extends JFrame {
         inGbc.anchor = GridBagConstraints.CENTER;
         inputPanel.add(loginButton, inGbc);
 
+        // Add input panel below welcome label
         innerGbc.gridy = 1;
         loginOverlay.add(inputPanel, innerGbc);
 
+        // Add overlay to background
         backgroundPanel.add(loginOverlay, gbc);
 
-        // Login action
+        // Login button action
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
             char[] pwChars = passwordField.getPassword();

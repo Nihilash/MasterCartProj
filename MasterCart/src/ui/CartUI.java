@@ -1,40 +1,13 @@
 package ui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-
-import javax.swing.AbstractCellEditor;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
-
 import model.CartItem;
 import service.CartService;
+
+import javax.swing.*;
+import javax.swing.table.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.net.URL;
 
 public class CartUI extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -46,31 +19,52 @@ public class CartUI extends JFrame {
     private JLabel totalLabel;
     private JTable cartTable;
     private CartTableModel tableModel;
+    private Image bgImage;
+
+    // ✅ Guard flag to prevent double checkout
+    private boolean isCheckingOut = false;
 
     public CartUI(CartService cartService, String username) {
         this.cartService = cartService;
         this.username = username;
 
         setTitle("Your Cart - " + username);
-        setExtendedState(Frame.MAXIMIZED_BOTH);
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+        loadBackgroundImage();
         setupBackgroundPanel();
         setupCartUI();
         refreshCart();
     }
 
+    /** ✅ Load background image from resources */
+    private void loadBackgroundImage() {
+        try {
+            URL imageUrl = getClass().getResource("/MasterCartimages/cartpage.jpg");
+            if (imageUrl != null) {
+                bgImage = new ImageIcon(imageUrl).getImage();
+            } else {
+                System.err.println("⚠ Cart background image not found in resources!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void setupBackgroundPanel() {
         mainPanel = new JPanel() {
             private static final long serialVersionUID = 1L;
-            private final Image bgImage = new ImageIcon(
-                    getClass().getResource("/Mastercartimages/cartpage.jpg")
-            ).getImage();
 
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+                if (bgImage != null) {
+                    g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    g.setColor(Color.DARK_GRAY);
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
             }
         };
         mainPanel.setLayout(new GridBagLayout());
@@ -194,25 +188,42 @@ public class CartUI extends JFrame {
         cartBox.add(bottomPanel, BorderLayout.SOUTH);
     }
 
+    /** ✅ Refresh cart & total */
     public void refreshCart() {
         tableModel.setCartItems(cartService.getCartItems());
-        double total = 0;
-        for (CartItem item : cartService.getCartItems()) {
-            total += item.getLineTotal();
-        }
+        double total = cartService.getCartItems().stream()
+                .mapToDouble(CartItem::getLineTotal)
+                .sum();
         totalLabel.setText("Total: " + total + " INR");
     }
 
+    /** ✅ Checkout action */
     private void checkoutAction() {
+        if (isCheckingOut) return;   // ✅ Prevent double trigger
+        isCheckingOut = true;
+
         if (cartService.getCartItems().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Cart is empty!", "Error", JOptionPane.ERROR_MESSAGE);
+            isCheckingOut = false;
             return;
         }
 
-        cartService.checkout(username);
-        JOptionPane.showMessageDialog(this, "Checkout complete. Invoice generated!",
-                "Success", JOptionPane.INFORMATION_MESSAGE);
+        double total = cartService.getCartItems().stream()
+                .mapToDouble(CartItem::getLineTotal)
+                .sum();
+
+        // ✅ Generate invoice (only once)
+        PDFGenerator.generateInvoice(username, cartService.getCartItems(), total);
+
+        cartService.checkout(username); // clear cart
+
+        JOptionPane.showMessageDialog(this,
+                "Checkout complete. Invoice has been generated!",
+                "Success",
+                JOptionPane.INFORMATION_MESSAGE);
+
         refreshCart();
+        isCheckingOut = false; // ✅ Reset for next checkout
     }
 
     // --- Table Model ---
@@ -296,9 +307,7 @@ public class CartUI extends JFrame {
 
         private void adjustQuantity(int delta) {
             int row = cartTable.getEditingRow();
-            if (row < 0) {
-				return;
-			}
+            if (row < 0) return;
 
             CartItem item = tableModel.getCartItem(row);
             int newQty = item.getQuantity() + delta;
@@ -347,9 +356,7 @@ public class CartUI extends JFrame {
 
             removeBtn.addActionListener(e -> {
                 int row = cartTable.getEditingRow();
-                if (row < 0) {
-					return;
-				}
+                if (row < 0) return;
                 CartItem item = tableModel.getCartItem(row);
                 cartService.removeProduct(item.getProduct());
                 fireEditingStopped();
@@ -394,4 +401,3 @@ public class CartUI extends JFrame {
         return btn;
     }
 }
-

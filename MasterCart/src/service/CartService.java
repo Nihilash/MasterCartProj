@@ -1,12 +1,12 @@
 package service;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import model.CartItem;
 import model.Product;
 import ui.PDFGenerator;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class CartService {
     private final List<CartItem> cartItems = new ArrayList<>();
@@ -44,9 +44,7 @@ public class CartService {
         }
 
         double totalAmount = 0;
-        for (CartItem item : cartItems) {
-			totalAmount += item.getLineTotal();
-		}
+        for (CartItem item : cartItems) totalAmount += item.getLineTotal();
 
         PDFGenerator.generateInvoice(username, cartItems, totalAmount);
 

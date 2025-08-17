@@ -1,37 +1,14 @@
 package ui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.ToolTipManager;
-import javax.swing.WindowConstants;
-
 import model.Product;
 import service.CartService;
 import service.ProductService;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.net.URL;
 
 public class ProductUI extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -63,20 +40,20 @@ public class ProductUI extends JFrame {
 
     private void setupFrame() {
         setTitle("MasterCart - Products (" + username + ")");
-        setExtendedState(Frame.MAXIMIZED_BOTH);
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     private JPanel setupBackgroundPanel() {
         JPanel backgroundPanel = new JPanel() {
-            private Image bgImage = new ImageIcon(
-                    getClass().getResource("/Mastercartimages/productpage.jpg")
-            ).getImage();
+            private Image bgImage = loadImage("Mastercartimages/productpage.jpg");
 
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+                if (bgImage != null) {
+                    g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+                }
             }
         };
         backgroundPanel.setLayout(new BorderLayout());
@@ -127,7 +104,7 @@ public class ProductUI extends JFrame {
         goToCartBtn.setFont(new Font("Arial", Font.BOLD, 20));
         goToCartBtn.addActionListener(e -> {
             CartUI cartUI = new CartUI(cartService, username);
-            cartUI.setExtendedState(Frame.MAXIMIZED_BOTH);
+            cartUI.setExtendedState(JFrame.MAXIMIZED_BOTH);
             cartUI.setVisible(true);
         });
 
@@ -162,7 +139,7 @@ public class ProductUI extends JFrame {
         inner.setLayout(new BoxLayout(inner, BoxLayout.Y_AXIS));
 
         JLabel imgLabel = new JLabel();
-        ImageIcon icon = new ImageIcon(getCategoryImage(category));
+        ImageIcon icon = new ImageIcon(loadImage(getCategoryImage(category)));
         Image img = icon.getImage().getScaledInstance(180, 180, Image.SCALE_SMOOTH);
         imgLabel.setIcon(new ImageIcon(img));
         imgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -216,15 +193,16 @@ public class ProductUI extends JFrame {
 
     private String getCategoryImage(String category) {
         switch (category.toLowerCase()) {
-            case "smartphone": return "/Mastercartimages/smartphone.jpg";
-            case "laptop": return "/Mastercartimages/laptop.jpg";
-            case "earbuds": return "/Mastercartimages/earbuds.jpg";
-            case "books": return "/Mastercartimages/books.jpg";
-            case "t-shirt": return "/Mastercartimages/tshirt.jpg";
-            case "jeans": return "/Mastercartimages/jeans.jpg";
+            case "smartphone": return "Mastercartimages/smartphone.jpg";
+            case "laptop": return "Mastercartimages/laptop.jpg";
+            case "earbuds": return "Mastercartimages/earbuds.jpg";
+            case "books": return "Mastercartimages/books.jpg";
+            case "t-shirt": return "Mastercartimages/tshirt.jpg";
+            case "jeans": return "Mastercartimages/jeans.jpg";
         }
-        return "/Mastercartimages/placeholder.jpg";
+        return "Mastercartimages/placeholder.jpg";
     }
+
     private void showProductDetail(String category) {
         categoryPanel.removeAll();
 
@@ -288,9 +266,7 @@ public class ProductUI extends JFrame {
 
         decBtn.addActionListener(e -> {
             int val = Integer.parseInt(qtyField.getText());
-            if (val > 1) {
-				qtyField.setText(String.valueOf(val - 1));
-			}
+            if (val > 1) qtyField.setText(String.valueOf(val - 1));
         });
         incBtn.addActionListener(e -> {
             int val = Integer.parseInt(qtyField.getText());
@@ -327,7 +303,7 @@ public class ProductUI extends JFrame {
         detailPanel.add(details, gbc);
 
         JLabel imgLabel = new JLabel();
-        ImageIcon icon = new ImageIcon(getCategoryImage(category));
+        ImageIcon icon = new ImageIcon(loadImage(getCategoryImage(category)));
         Image img = icon.getImage().getScaledInstance(450, 350, Image.SCALE_SMOOTH);
         imgLabel.setIcon(new ImageIcon(img));
         gbc.gridx = 1;
@@ -340,5 +316,17 @@ public class ProductUI extends JFrame {
 
         taglineLabel.setText(category + " - Product Details");
     }
-}
 
+    /**
+     * Utility to load images from resources folder
+     */
+    private Image loadImage(String path) {
+        URL resource = getClass().getClassLoader().getResource(path);
+        if (resource != null) {
+            return new ImageIcon(resource).getImage();
+        } else {
+            System.err.println("Image not found: " + path);
+            return null;
+        }
+    }
+}

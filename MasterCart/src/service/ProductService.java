@@ -1,9 +1,9 @@
 package service;
 
-import java.util.List;
-
 import dao.ProductDAO;
 import model.Product;
+
+import java.util.List;
 
 public class ProductService {
     private ProductDAO productDAO;
@@ -29,9 +29,7 @@ public class ProductService {
     // Get product by ID
     public Product getProductById(int id) {
         for (Product p : productDAO.getAllProducts()) {
-            if (p.getId() == id) {
-				return p;
-			}
+            if (p.getId() == id) return p;
         }
         return null;
     }
@@ -39,9 +37,7 @@ public class ProductService {
     // ✅ Get product by category name
     public Product getProductByCategory(String categoryName) {
         int categoryId = getCategoryIdFromName(categoryName);
-        if (categoryId == -1) {
-			return null; // unknown category
-		}
+        if (categoryId == -1) return null; // unknown category
 
         for (Product p : productDAO.getAllProducts()) {
             if (p.getCategoryId() == categoryId) {

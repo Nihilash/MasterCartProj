@@ -27,7 +27,8 @@ public class UserService {
      * If username already exists returns false.
      */
     public boolean register(User newUser) {
-        if (newUser == null || newUser.getUsername() == null || userDAO.existsByUsername(newUser.getUsername())) {
+        if (newUser == null || newUser.getUsername() == null) return false;
+        if (userDAO.existsByUsername(newUser.getUsername())) {
             return false;
         }
         userDAO.addUser(newUser);

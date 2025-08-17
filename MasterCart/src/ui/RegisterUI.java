@@ -1,28 +1,10 @@
 package ui;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
-
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
-
 import model.User;
 import service.UserService;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class RegisterUI extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -32,7 +14,7 @@ public class RegisterUI extends JFrame {
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
     private JTextField mobileField;
-    private JTextField genderField;
+    private JComboBox<String> genderBox;
     private JTextField ageField;
     private JButton registerBtn;
 
@@ -41,13 +23,13 @@ public class RegisterUI extends JFrame {
     public RegisterUI(UserService userService) {
         this.userService = userService;
         setTitle("MasterCart - Register");
-        setExtendedState(Frame.MAXIMIZED_BOTH); // full screen
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // full screen
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // Background panel
         JPanel backgroundPanel = new JPanel() {
-            private Image bgImage = new ImageIcon(
-                    "D:\\besant\\java ecllipse1\\MasterCart\\Mastercartimages\\registrationpage.jpg").getImage();
+            private final Image bgImage = new ImageIcon(
+                    "D:\\MaterCartWorkSpace\\MasterCart\\MasterCartimages\\registrationpage.jpg").getImage();
 
             @Override
             protected void paintComponent(Graphics g) {
@@ -93,7 +75,6 @@ public class RegisterUI extends JFrame {
 
         // Username
         JLabel usernameLabel = new JLabel("Username:");
-        usernameLabel.setForeground(Color.BLACK);
         usernameLabel.setFont(new Font("Arial", Font.BOLD, 18));
         usernameField = new JTextField(15);
         usernameField.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -104,7 +85,6 @@ public class RegisterUI extends JFrame {
         // Password
         inGbc.gridx = 0; inGbc.gridy++;
         JLabel passwordLabel = new JLabel("Password:");
-        passwordLabel.setForeground(Color.BLACK);
         passwordLabel.setFont(new Font("Arial", Font.BOLD, 18));
         passwordField = new JPasswordField(15);
         passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -115,7 +95,6 @@ public class RegisterUI extends JFrame {
         // Confirm Password
         inGbc.gridx = 0; inGbc.gridy++;
         JLabel confirmLabel = new JLabel("Confirm Password:");
-        confirmLabel.setForeground(Color.BLACK);
         confirmLabel.setFont(new Font("Arial", Font.BOLD, 18));
         confirmPasswordField = new JPasswordField(15);
         confirmPasswordField.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -126,7 +105,6 @@ public class RegisterUI extends JFrame {
         // Mobile
         inGbc.gridx = 0; inGbc.gridy++;
         JLabel mobileLabel = new JLabel("Mobile:");
-        mobileLabel.setForeground(Color.BLACK);
         mobileLabel.setFont(new Font("Arial", Font.BOLD, 18));
         mobileField = new JTextField(15);
         mobileField.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -134,21 +112,19 @@ public class RegisterUI extends JFrame {
         inGbc.gridx = 1;
         inputPanel.add(mobileField, inGbc);
 
-        // Gender
+        // Gender (Dropdown instead of free text)
         inGbc.gridx = 0; inGbc.gridy++;
         JLabel genderLabel = new JLabel("Gender:");
-        genderLabel.setForeground(Color.BLACK);
         genderLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        genderField = new JTextField(15);
-        genderField.setFont(new Font("Arial", Font.PLAIN, 16));
+        genderBox = new JComboBox<>(new String[]{"Male", "Female", "Other"});
+        genderBox.setFont(new Font("Arial", Font.PLAIN, 16));
         inputPanel.add(genderLabel, inGbc);
         inGbc.gridx = 1;
-        inputPanel.add(genderField, inGbc);
+        inputPanel.add(genderBox, inGbc);
 
         // Age
         inGbc.gridx = 0; inGbc.gridy++;
         JLabel ageLabel = new JLabel("Age:");
-        ageLabel.setForeground(Color.BLACK);
         ageLabel.setFont(new Font("Arial", Font.BOLD, 18));
         ageField = new JTextField(15);
         ageField.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -162,7 +138,7 @@ public class RegisterUI extends JFrame {
         inGbc.anchor = GridBagConstraints.CENTER;
         registerBtn = new JButton("Register");
         registerBtn.setFont(new Font("Arial", Font.BOLD, 18));
-        registerBtn.setBackground(new Color(200, 200, 200));
+        registerBtn.setBackground(new Color(100, 200, 255));
         registerBtn.setForeground(Color.BLACK);
         registerBtn.setFocusPainted(false);
         inputPanel.add(registerBtn, inGbc);
@@ -183,7 +159,7 @@ public class RegisterUI extends JFrame {
         String password = new String(passwordField.getPassword());
         String confirm = new String(confirmPasswordField.getPassword());
         String mobile = mobileField.getText().trim();
-        String gender = genderField.getText().trim();
+        String gender = (String) genderBox.getSelectedItem();
         String ageText = ageField.getText().trim();
 
         if (username.isEmpty() || password.isEmpty() || confirm.isEmpty()
@@ -197,12 +173,15 @@ public class RegisterUI extends JFrame {
             return;
         }
 
+        if (!mobile.matches("\\d{10}")) {
+            JOptionPane.showMessageDialog(this, "Enter a valid 10-digit mobile number.", "Validation", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         int age;
         try {
             age = Integer.parseInt(ageText);
-            if (age < 0) {
-				throw new NumberFormatException();
-			}
+            if (age <= 0) throw new NumberFormatException();
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Enter a valid age.", "Validation", JOptionPane.WARNING_MESSAGE);
             return;

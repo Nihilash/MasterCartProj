@@ -1,28 +1,5 @@
 package main;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Insets;
-
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-
 import dao.ProductDAO;
 import dao.UserDAO;
 import model.User;
@@ -32,6 +9,10 @@ import service.UserService;
 import ui.LoginUI;
 import ui.ProductUI;
 import ui.RegisterUI;
+
+import javax.swing.*;
+import java.awt.*;
+import java.net.URL;
 
 public class SuperCartApp {
 
@@ -47,23 +28,40 @@ public class SuperCartApp {
         // Initialize Services
         UserService userService = new UserService(userDAO);
         ProductService productService = new ProductService(productDAO);
-        CartService cartService = new CartService(); // ✅ single shared instance
+        CartService cartService = new CartService(); // single shared instance
 
         SwingUtilities.invokeLater(() -> {
             // Main frame
             JFrame mainFrame = new JFrame("MasterCart - Main Menu");
-            mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
-            mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+            mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
             // Panel with background image
             JPanel backgroundPanel = new JPanel() {
-                private Image bgImage = new ImageIcon(
-                        "D:\\besant\\java ecllipse1\\MasterCart\\Mastercartimages\\OpencartMainpage.jpg").getImage();
+                private final Image bgImage;
+
+                {
+                    // ✅ Try to load from resources inside src/Mastercartimages/
+                    URL resource = getClass().getClassLoader()
+                            .getResource("Mastercartimages/OpencartMainpage.jpg");
+                    if (resource != null) {
+                        bgImage = new ImageIcon(resource).getImage();
+                    } else {
+                        System.err.println("⚠️ Background image not found in resources!");
+                        bgImage = null;
+                    }
+                }
 
                 @Override
                 protected void paintComponent(Graphics g) {
                     super.paintComponent(g);
-                    g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+                    if (bgImage != null) {
+                        g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+                    } else {
+                        // fallback background
+                        g.setColor(Color.LIGHT_GRAY);
+                        g.fillRect(0, 0, getWidth(), getHeight());
+                    }
                 }
             };
             backgroundPanel.setLayout(new GridBagLayout());
@@ -102,7 +100,7 @@ public class SuperCartApp {
             styleButton(loginBtn);
             loginBtn.addActionListener(e -> {
                 LoginUI loginUI = new LoginUI(userService);
-                loginUI.setExtendedState(Frame.MAXIMIZED_BOTH);
+                loginUI.setExtendedState(JFrame.MAXIMIZED_BOTH);
                 loginUI.setVisible(true);
                 mainFrame.setVisible(false);
 
@@ -118,7 +116,7 @@ public class SuperCartApp {
                                     loggedInUser.getUsername(),
                                     mainFrame
                             );
-                            productUI.setExtendedState(Frame.MAXIMIZED_BOTH);
+                            productUI.setExtendedState(JFrame.MAXIMIZED_BOTH);
                             productUI.setVisible(true);
                         } else {
                             mainFrame.setVisible(true);
@@ -131,7 +129,7 @@ public class SuperCartApp {
             styleButton(registerBtn);
             registerBtn.addActionListener(e -> {
                 RegisterUI registerUI = new RegisterUI(userService);
-                registerUI.setExtendedState(Frame.MAXIMIZED_BOTH);
+                registerUI.setExtendedState(JFrame.MAXIMIZED_BOTH);
                 registerUI.setVisible(true);
                 mainFrame.setVisible(false);
 
@@ -176,4 +174,3 @@ public class SuperCartApp {
         return overlay;
     }
 }
-
