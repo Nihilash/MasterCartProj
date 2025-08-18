@@ -20,13 +20,13 @@ public class LoginUI extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH); // Full screen
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // ✅ Load background image from resources (inside src/Mastercartimages/)
+        // Load background image from resources (inside src/Mastercartimages/)
         try {
             bgImage = new ImageIcon(
                 getClass().getResource("/Mastercartimages/login1.jpg")
             ).getImage();
         } catch (Exception e) {
-            System.err.println("⚠️ Could not load background image. Check path: src/Mastercartimages/login1.jpg");
+            System.err.println("Could not load background image. Check path: src/Mastercartimages/login1.jpg");
             bgImage = null;
         }
 
