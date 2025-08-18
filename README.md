@@ -16,8 +16,9 @@ Think of MasterCart as a desktop shopping cart where you can:
 This project reflects my journey in **Java development & testing**, combining both development (Swing + DB) and a testing mindset (validation, reliability). 🚀
 
 ---
-```plaintext
+
 ## 📂 Project Structure
+```plaintext
 MasterCartApp/
 │
 ├── src/
