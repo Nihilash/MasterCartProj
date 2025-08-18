@@ -41,13 +41,13 @@ public class SuperCartApp {
                 private final Image bgImage;
 
                 {
-                    // ✅ Try to load from resources inside src/Mastercartimages/
+                    // Try to load from resources inside src/Mastercartimages/
                     URL resource = getClass().getClassLoader()
                             .getResource("Mastercartimages/OpencartMainpage.jpg");
                     if (resource != null) {
                         bgImage = new ImageIcon(resource).getImage();
                     } else {
-                        System.err.println("⚠️ Background image not found in resources!");
+                        System.err.println("Background image not found in resources!");
                         bgImage = null;
                     }
                 }
@@ -109,7 +109,7 @@ public class SuperCartApp {
                     public void windowClosed(java.awt.event.WindowEvent e) {
                         User loggedInUser = loginUI.getLoggedInUser();
                         if (loggedInUser != null) {
-                            // ✅ Pass shared cartService instance to ProductUI
+                            //  Pass shared cartService instance to ProductUI
                             ProductUI productUI = new ProductUI(
                                     productService,
                                     cartService,
