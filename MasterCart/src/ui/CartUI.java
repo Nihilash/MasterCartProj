@@ -21,7 +21,7 @@ public class CartUI extends JFrame {
     private CartTableModel tableModel;
     private Image bgImage;
 
-    // ✅ Guard flag to prevent double checkout
+    // Guard flag to prevent double checkout
     private boolean isCheckingOut = false;
 
     public CartUI(CartService cartService, String username) {
@@ -38,7 +38,7 @@ public class CartUI extends JFrame {
         refreshCart();
     }
 
-    /** ✅ Load background image from resources */
+    /** Load background image from resources */
     private void loadBackgroundImage() {
         try {
             URL imageUrl = getClass().getResource("/MasterCartimages/cartpage.jpg");
@@ -188,7 +188,7 @@ public class CartUI extends JFrame {
         cartBox.add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    /** ✅ Refresh cart & total */
+    /** Refresh cart & total */
     public void refreshCart() {
         tableModel.setCartItems(cartService.getCartItems());
         double total = cartService.getCartItems().stream()
@@ -197,9 +197,9 @@ public class CartUI extends JFrame {
         totalLabel.setText("Total: " + total + " INR");
     }
 
-    /** ✅ Checkout action */
+    /** Checkout action */
     private void checkoutAction() {
-        if (isCheckingOut) return;   // ✅ Prevent double trigger
+        if (isCheckingOut) return;   //  Prevent double trigger
         isCheckingOut = true;
 
         if (cartService.getCartItems().isEmpty()) {
@@ -212,7 +212,7 @@ public class CartUI extends JFrame {
                 .mapToDouble(CartItem::getLineTotal)
                 .sum();
 
-        // ✅ Generate invoice (only once)
+        // Generate invoice (only once)
         PDFGenerator.generateInvoice(username, cartService.getCartItems(), total);
 
         cartService.checkout(username); // clear cart
