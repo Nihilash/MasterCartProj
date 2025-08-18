@@ -34,7 +34,7 @@ public class ProductService {
         return null;
     }
 
-    // ✅ Get product by category name
+    //  Get product by category name
     public Product getProductByCategory(String categoryName) {
         int categoryId = getCategoryIdFromName(categoryName);
         if (categoryId == -1) return null; // unknown category
